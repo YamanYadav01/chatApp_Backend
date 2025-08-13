@@ -58,10 +58,17 @@ io.on('connection', (socket)=>{
     
   });
 })
+const allowedOrigins = process.env.CLIENT_URL?.split(",") || [];
 
 app.use(cors({
-  origin: process.env.CLIENT_URL, // ✅ frontend ka exact origin
-  credentials: true               // ✅ allow cookies
+  origin: (origin, callback) => {
+    // Development me origin null hota hai (Postman/local)
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, false); // Error throw na karo
+  },
+  credentials: true
 }));
 
 // app.use(cors()); 
