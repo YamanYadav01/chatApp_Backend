@@ -16,7 +16,8 @@ const server = http.createServer(app);
 const io = new Server(server,{
   cors: {
     origin: process.env.CLIENT_URL, // React frontend URL
-    methods: ['GET', 'POST']
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });  //handle the socket.io
 
@@ -68,7 +69,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser()); // enable cookie support
 app.use(express.static("/public"));
-
+app.get("/", (req, res) => {
+  res.send("Backend running on Vercel 🚀");
+});
 app.use('/user',router);
 
 dotenv.config();
