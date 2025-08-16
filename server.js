@@ -58,18 +58,14 @@ io.on('connection', (socket)=>{
     
   });
 })
-const allowedOrigins = process.env.CLIENT_URL?.split(",") || [];
+const allowedOrigin = process.env.CLIENT_URL || "https://chatappfrontend-dusky.vercel.app";
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Development me origin null hota hai (Postman/local)
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(null, false); // Error throw na karo
-  },
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: allowedOrigin,
+    credentials: true,
+  })
+);
 
 // app.use(cors()); 
 app.use(express.json());
