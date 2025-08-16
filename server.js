@@ -76,9 +76,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser()); // enable cookie support
 app.use(express.static("/public"));
-app.get("/", (req, res) => {
-  res.send("Backend running on Vercel 🚀");
-});
+// app.get("/", (req, res) => {
+//   res.send("Backend running on render 🚀");
+// });
 app.use('/user',router);
 
 dotenv.config();
