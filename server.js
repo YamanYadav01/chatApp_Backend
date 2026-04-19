@@ -16,7 +16,7 @@ const server = http.createServer(app);
 const allowedOrigin = process.env.CLIENT_URL || "https://chatappfrontend-dusky.vercel.app";
 const io = new Server(server, {
   cors: {
-    origin: "*",  ,
+    origin: allowedOrigin,   // ✅ use this
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -65,7 +65,11 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(cors()); 
+app.options("*", cors({
+  origin: allowedOrigin,
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser()); // enable cookie support
