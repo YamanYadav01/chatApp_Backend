@@ -17,8 +17,7 @@ const allowedOrigin = process.env.CLIENT_URL || "https://chatappfrontend-dusky.v
 const io = new Server(server, {
   cors: {
     origin: allowedOrigin,   // ✅ use this
-    methods: ["GET", "POST"],
-    credentials: true
+    methods: ["GET", "POST"]
   }
 });  //handle the socket.io
 
