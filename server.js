@@ -13,9 +13,10 @@ import path from 'path'
 
 const app = express();
 const server = http.createServer(app);
+const allowedOrigin = process.env.CLIENT_URL || "https://chatappfrontend-dusky.vercel.app";
 const io = new Server(server, {
   cors: {
-    origin: "https://chatappfrontend-dusky.vercel.app",
+    origin: allowedOrigin,
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -58,10 +59,9 @@ io.on('connection', (socket)=>{
     
   });
 })
-const allowedOrigin = process.env.CLIENT_URL || "https://chatappfrontend-dusky.vercel.app";
 
 app.use(cors({
-  origin: "https://chatappfrontend-dusky.vercel.app",
+  origin: allowedOrigin,
   credentials: true
 }));
 
