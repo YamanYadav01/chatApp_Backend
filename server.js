@@ -55,10 +55,11 @@ app.use('/user', router);
 // 🔥 SOCKET.IO FIX
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigin,
+    origin: "https://chatappfrontend-dusky.vercel.app",
     methods: ["GET", "POST"]
+    // ❌ credentials hatao (very important)
   },
-  transports: ["websocket", "polling"] // ✅ important
+  transports: ["polling", "websocket"]
 });
 
 io.on('connection', (socket) => {
