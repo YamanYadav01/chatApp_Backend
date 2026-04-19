@@ -16,7 +16,7 @@ const server = http.createServer(app);
 const allowedOrigin = process.env.CLIENT_URL || "https://chatappfrontend-dusky.vercel.app";
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigin,
+    origin: "*",  ,
     methods: ["GET", "POST"],
     credentials: true
   }
