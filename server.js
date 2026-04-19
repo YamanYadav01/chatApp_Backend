@@ -1,49 +1,90 @@
 import express from 'express';
 import http from "http";
-import mongoose, { mongo } from 'mongoose';
-import dotenv from 'dotenv'
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import router from './routes/userRoute.js';
-import cors from 'cors'
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { Server } from "socket.io";
-import { connect } from 'http2';
 import Message from './modal/messageModel.js';
-import path from 'path'
+import path from 'path';
 
+dotenv.config(); // ✅ sabse upar
 
 const app = express();
 const server = http.createServer(app);
+
 const allowedOrigin = process.env.CLIENT_URL || "https://chatappfrontend-dusky.vercel.app";
+
+
+// 🔥 GLOBAL HEADERS FIX (IMPORTANT)
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", allowedOrigin);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200); // ✅ preflight fix
+  }
+  next();
+});
+
+
+// ✅ CORS (single, clean)
+app.use(cors({
+  origin: allowedOrigin,
+  credentials: true
+}));
+
+
+// ✅ middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+
+
+// ✅ static fix
+app.use(express.static(path.join(process.cwd(), "public")));
+
+
+// ✅ routes
+app.use('/user', router);
+
+
+// 🔥 SOCKET.IO FIX
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigin,   // ✅ use this
+    origin: allowedOrigin,
     methods: ["GET", "POST"]
-  }
-});  //handle the socket.io
+  },
+  transports: ["websocket", "polling"] // ✅ important
+});
 
-io.on('connection', (socket)=>{
-  socket.on("Yaman", async(msg)=>{
+io.on('connection', (socket) => {
+  console.log("✅ Socket Connected:", socket.id);
+
+  socket.on("Yaman", async (msg) => {
     let existingChat = await Message.findOne({
-      $or:[
-            {ReceverId:msg.ReceverId, senderId:msg.senderId},
-            {ReceverId:msg.senderId, senderId:msg.ReceverId}
-        ]});
+      $or: [
+        { ReceverId: msg.ReceverId, senderId: msg.senderId },
+        { ReceverId: msg.senderId, senderId: msg.ReceverId }
+      ]
+    });
 
-    if(!existingChat){
-      // Create a new conversation if it doesn't exist
-     const newChat = new Message({
-             senderId: msg.senderId,
-             ReceverId: msg.ReceverId,
-           messageData: [{
-                sender: msg.senderId,
-               message: msg.messages,
-            createDate: new Date(msg.date)
-            }]
+    if (!existingChat) {
+      const newChat = new Message({
+        senderId: msg.senderId,
+        ReceverId: msg.ReceverId,
+        messageData: [{
+          sender: msg.senderId,
+          message: msg.messages,
+          createDate: new Date(msg.date)
+        }]
       });
 
       await newChat.save();
-
-    }else{
+    } else {
       existingChat.messageData.push({
         sender: msg.senderId,
         message: msg.messages,
@@ -51,45 +92,24 @@ io.on('connection', (socket)=>{
       });
       await existingChat.save();
     }
-      io.emit("message", msg)
-    })
+
+    io.emit("message", msg);
+  });
 
   socket.on('disconnect', () => {
-    
+    console.log("❌ Socket Disconnected:", socket.id);
   });
-})
+});
 
-app.use(cors({
-  origin: allowedOrigin,
-  credentials: true
-}));
 
-app.options("*", cors({
-  origin: allowedOrigin,
-  credentials: true
-}));
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser()); // enable cookie support
-app.use(express.static("/public"));
-// app.get("/", (req, res) => {
-//   res.send("Backend running on render 🚀");
-// });
-app.use('/user',router);
-
-dotenv.config();
-//Database connection
+// ✅ DB connect
 mongoose.connect(process.env.MONGODB_URI)
-        .then(()=>{
-            console.log("✅ MongoDB connected successfully");
-        })
-        .catch((err)=>console.error("❌ Error connecting to MongoDB:", err))
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.log("❌ DB error:", err));
 
-// configure dotenv
-const PORT = process.env.PORT||3000;
-server.listen(PORT,()=>{
-    console.log(`port is started, ${PORT}`)
-})
 
-export default server;
+// ✅ server start
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on ${PORT}`);
+});
