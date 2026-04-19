@@ -84,7 +84,7 @@ mongoose.connect(process.env.MONGODB_URI)
         .catch((err)=>console.error("❌ Error connecting to MongoDB:", err))
 
 // configure dotenv
-const PORT = process.env.PORT||'3000';
+const PORT = process.env.PORT||3000;
 server.listen(PORT,()=>{
     console.log(`port is started, ${PORT}`)
 })
