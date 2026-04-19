@@ -60,12 +60,10 @@ io.on('connection', (socket)=>{
 })
 const allowedOrigin = process.env.CLIENT_URL || "https://chatappfrontend-dusky.vercel.app";
 
-app.use(
-  cors({
-    origin: allowedOrigin,
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: "https://chatappfrontend-dusky.vercel.app",
+  credentials: true
+}));
 
 // app.use(cors()); 
 app.use(express.json());
