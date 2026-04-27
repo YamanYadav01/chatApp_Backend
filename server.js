@@ -17,12 +17,11 @@ const server = http.createServer(app);
 const allowedOrigin = process.env.CLIENT_URL || "https://chatappfrontend-dusky.vercel.app";
 
 // ✅ CORS (single, clean)
- cors: {
-    origin: "*",   // 🔥 TEMP FIX
-    methods: ["GET", "POST"]
-  },
-  transports: ["polling", "websocket"]
-});
+app.use(cors({
+  origin: allowedOrigin ,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 
 
 // ✅ middlewares
@@ -42,7 +41,7 @@ app.use('/user', router);
 // 🔥 SOCKET.IO FIX
 const io = new Server(server, {
   cors: {
-    origin: "https://chatappfrontend-dusky.vercel.app",
+    origin: allowedOrigin,
     methods: ["GET", "POST"]
     // ❌ credentials hatao (very important)
   },
