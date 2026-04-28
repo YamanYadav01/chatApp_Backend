@@ -14,7 +14,7 @@ dotenv.config(); // ✅ sabse upar
 const app = express();
 const server = http.createServer(app);
 
-const allowedOrigin = process.env.CLIENT_URL || "https://chatappfrontend-dusky.vercel.app";
+const allowedOrigin = process.env.CLIENT_URL || "https://chat-app-frontend-bice-seven.vercel.app";
 
 // ✅ CORS (single, clean)
 app.use(cors({
@@ -42,10 +42,8 @@ app.use('/user', router);
 const io = new Server(server, {
   cors: {
     origin: allowedOrigin,
-    methods: ["GET", "POST"]
-    // ❌ credentials hatao (very important)
-  },
-  transports: ["polling", "websocket"]
+    methods: ["GET", "POST"],
+    credentials: true
 });
 
 io.on('connection', (socket) => {
