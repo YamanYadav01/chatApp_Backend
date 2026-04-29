@@ -14,7 +14,7 @@ dotenv.config(); // ✅ sabse upar
 const app = express();
 const server = http.createServer(app);
 
-const allowedOrigin = process.env.CLIENT_URL || "https://chat-app-frontend-bice-seven.vercel.app";
+const allowedOrigin = process.env.CLIENT_URL || "http://localhost:5173";
 
 // ✅ CORS (single, clean)
 app.use(cors({
@@ -44,6 +44,7 @@ const io = new Server(server, {
     origin: allowedOrigin,
     methods: ["GET", "POST"],
     credentials: true
+}
 });
 
 io.on('connection', (socket) => {

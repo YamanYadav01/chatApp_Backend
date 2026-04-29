@@ -8,18 +8,19 @@ import { Server } from "socket.io";
 
 export const SignUp = async(req,res)=>{
     try{
-     const{email,username,password} = req.body;
-
-    if(!email||!username||!password){
-       return res.status(502).json({msg:"All fields are required"});
-    }
-    
-    const userexist = await User.findOne({email});
-    if(userexist){
-        return res.status(502).json({msg:"This user are allready registered"});
-    }
-    else{
-        const salt = await bcrypt.genSalt(10); // Use async version
+        const{email,username,password} = req.body;
+        
+        if(!email||!username||!password){
+            return res.status(502).json({msg:"All fields are required"});
+        }
+        
+        const userexist = await User.findOne({email});
+        if(userexist){
+            console.log("sign up ", userexist)
+           return res.status(409).json({ msg: "User is already registered"});
+        }
+        else{
+            const salt = await bcrypt.genSalt(10); // Use async version
         const hash = await bcrypt.hash(password, salt);
 
         await User.create({
@@ -44,25 +45,26 @@ export const SignIn = async(req,res)=>{
         if(!email||!password){
             return res.status(502).json({msg:"All fields are required"});
         }
-     
+        
         const existUser = await User.findOne({email})
         
-    if(existUser){
-        const isMatch = bcrypt.compareSync(password, existUser.password);
-    if(isMatch){
-        // Generate token
-        const token = jwt.sign({ id: existUser._id.toString() }, process.env.JWT_SECRET, {
-            expiresIn: "1h"
-        });
-        
-        // Save token in cookie
-        res.cookie('tokenData', token, {
-            httpOnly: true,
-            secure: false,               // okay for localhost
-            sameSite: 'lax',             // allows cross-origin POST with navigation
-            expires: new Date(Date.now() + 3600000)  // 1 hour
-            });
-            res.json({ id: existUser._id.toString(), email: existUser.email, msg:"User are login successfully..."});
+        if(existUser){
+            const isMatch = bcrypt.compareSync(password, existUser.password);
+            if(isMatch){
+                // Generate token
+                const token = jwt.sign({ id: existUser._id.toString() }, process.env.JWT_SECRET, {
+                    expiresIn: "1h"
+                });
+                
+                console.log("sign in yha aa rha",existUser)
+                // Save token in cookie
+                res.cookie('tokenData', token, {
+                    httpOnly: true,
+                    secure: false,               // okay for localhost
+                    sameSite: 'lax',             // allows cross-origin POST with navigation
+                    expires: new Date(Date.now() + 3600000)  // 1 hour
+                });
+        res.status(200).json({ id: existUser._id.toString(), email: existUser.email, msg:"User are login successfully..."});
     }
     }else{
          return res.status(500).json({message:"user not found"})
